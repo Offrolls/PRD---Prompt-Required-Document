@@ -1,0 +1,253 @@
+Product Requirements Document: Hiring Pipeline & Candidate Detail Screen
+========================================================================
+
+This document details the complete user journey and technical requirements for the candidate pipeline on both the Employer and Talent Partner (Recruiter) platforms. It serves as a single source of truth for all stages, actions, and user interface specifications, from candidate submission to a successful hire.
+
+* * *
+
+1\. Candidate Detail Screen: UI & Core Information
+--------------------------------------------------
+
+The candidate detail screen is the central hub for all actions related to a specific candidate. The screen's design and functionality are critical for a seamless user experience.
+
+*   **Breadcrumbs:** A navigation breadcrumb will be present at the top left, displaying the user's path (e.g., `Home > Jobs > [Job Title]`).
+    
+*   **Key Candidate Information:** The top section will prominently display the candidate's name, current role, years of experience, and location.
+    
+*   **Status & AI Score:** A status chip will indicate the candidate's current position in the pipeline. An "AI Score" chip will be placed next to it, providing an initial assessment.
+    
+*   **Contact Information:** This section will display the candidate's phone number and email address.
+    
+*   **Information Tabs:** The main content area will be divided into two tabs:
+    
+    *   **Resume:** This tab will display a full preview of the candidate's resume. A "Download Resume" button will be present to allow the user to save a copy.
+        
+    *   **Activity:** This tab will be a chronological, read-only log of all actions, status changes, and notes related to the candidate. It will provide a transparent view for both the employer and recruiter.
+        
+*   **Team Notes:** An internal "Team Note" section will be available for the employer to add private comments visible only to their team members.
+    
+*   **Recruiter Information:** The screen will clearly display the name of the recruiter who shared the candidate.
+    
+
+* * *
+
+2\. Hiring Pipeline: Stage & Action Breakdown
+---------------------------------------------
+
+The hiring pipeline is a series of conditional stages. The candidate's status will update automatically based on actions taken by the employer or recruiter.
+
+### **2.1 Initial Status: Under Review**
+
+*   **Trigger:** This is the default status for a candidate when a recruiter first submits their profile to a specific job.
+    
+
+### **2.2 Action: Shortlisting**
+
+*   **Trigger:** The employer selects "Shortlist" from the "Next Step" dropdown menu.
+    
+*   **Modal:** A modal will appear prompting the employer to add a comment.
+    
+    *   **Microcopy:**
+        
+        *   Heading: "Add a comment for the recruiter"
+            
+        *   Placeholder: "Tell us about this candidate..."
+            
+        *   Buttons: "Cancel," "Submit"
+            
+*   **Logic:**
+    
+    *   Upon submission, the comment will be logged in the "Activity" tab.
+        
+    *   The candidate's status will change to **`Shortlisted`**.
+        
+    *   The "Shortlist" option will be removed from the "Next Step" dropdown for this candidate.
+        
+
+### **2.3 Action: Scheduling an Interview**
+
+*   **Trigger:** The employer selects "Schedule Interview" from the "Next Step" dropdown.
+    
+*   **Modal:** A modal will appear to capture interview details.
+    
+    *   **Microcopy:**
+        
+        *   Heading: "Schedule an Interview"
+            
+        *   Labels: "Select Interviewer," "Select Date," "Select Time"
+            
+        *   Buttons: "Add new slot," "Cancel," "Send to Recruiter"
+            
+*   **Logic:**
+    
+    *   The employer must select at least three slots.
+        
+    *   Upon clicking "Send to Recruiter," the candidate's status will change to **`R1: Slots Added`**. The number indicates the round of the interview.
+        
+    *   The selected slots will be displayed on the candidate's screen for both the employer and recruiter.
+        
+*   **Recruiter Actions:**
+    
+    *   **Confirm:** The recruiter can click on one of the displayed slots. A confirmation modal will appear.
+        
+        *   Upon confirmation, the candidate's status will change to **`R1: Interview Confirmed`**. A success message will be displayed with the interview link.
+            
+    *   **Reject:** The recruiter can click "Reject all." A modal will appear for them to provide a reason for the rejection.
+        
+        *   Upon submission, the candidate's status will change to **`R1: Slots Rejected`**.
+            
+
+### **2.4 Action: Multi-Round Interviews**
+
+*   **Trigger:** After the first interview is confirmed, the "Next Step" dropdown will now display "Schedule Next Round."
+    
+*   **Logic:**
+    
+    *   Clicking this option will trigger the same interview scheduling modal.
+        
+    *   The status chips will automatically update with the correct round number (e.g., `R2: Slots Added`, `R2: Interview Confirmed`). This process can be repeated for as many rounds as needed.
+        
+
+### **2.5 Action: Update Offer Details**
+
+*   **Trigger:** The employer selects "Update offer details" from the dropdown.
+    
+*   **Modal:** A modal will appear to collect offer information.
+    
+    *   **Fields:** "Fixed CTC," "Variable CTC," "Date of Joining." The "Total CTC" field will be a read-only, auto-calculated sum of Fixed and Variable CTC. An "Upload Offer Letter" button will be optional.
+        
+*   **System Logic:**
+    
+    *   Upon submission, the candidate's status will change to **`Offer Released`**.
+        
+    *   The system must store the "Fixed CTC" amount for payout calculation.
+        
+    *   **Payout Calculation:**
+        
+        *   The system will calculate the recruiter's payout based on the job's hiring fee percentage (e.g., 8.33% of Fixed CTC).
+            
+        *   The payout amount displayed on the recruiter's screen will be the total payout minus a **25% service charge** to Offrolls.
+            
+        *   A note, "Service charges apply," with an asterisk, must be shown below the payout amount.
+            
+
+### **2.6 Action: Mark Candidate as Joined**
+
+*   **Trigger:** The employer selects "Mark candidate as joined" from the dropdown.
+    
+*   **Modal:** A modal will appear to capture the official date of joining.
+    
+*   **Logic:**
+    
+    *   The system must store this official date of joining.
+        
+    *   **Buffer Days & Payout Trigger:** The system will use this date to calculate the buffer period for candidate replacement. After this period, a mail will be sent to `mailto:connect@offrolls.com` to notify about the payment due to the recruiter.
+        
+    *   **Employer Payment:** 30 days after the official joining date, the system will send another mail to `mailto:connect@offrolls.com` to notify about the payment due from the employer.
+        
+
+* * *
+
+3\. Post-Action Status & Automation (Non-Priority)
+--------------------------------------------------
+
+These features provide helpful nudges and are considered non-priority for the initial build.
+
+### **3.1 Post-Interview Confirmation Modal**
+
+*   **Trigger:** Two hours after a confirmed interview time, this modal will appear on the employer's first login.
+    
+*   **Purpose:** To confirm whether the interview happened. If the employer confirms, the candidate's status will change to `R1: Interview Completed` (and so on for subsequent rounds).
+    
+
+### **3.2 Date of Joining Confirmation Modal**
+
+*   **Trigger:** This modal will appear on the employer's first login on the candidate's official date of joining.
+    
+*   **Logic:**
+    
+    *   The modal will prompt the employer to take action.
+        
+    *   If the user closes it without taking action, it will reappear on subsequent logins on the same day (between 3 PM and 7 PM).
+        
+    *   If the user does not log in on the DOJ, the modal will become mandatory on the next login, with the close button removed.
+        
+
+* * *
+
+4\. Post-Offer Recruiter Actions
+--------------------------------
+
+### **4.1 Update Post-Offer Status**
+
+*   **Trigger:** The recruiter has a dropdown to update the candidate's status after an offer has been released.
+    
+*   **Logic:** The recruiter can only make a single selection from the dropdown. Once submitted, the dropdown will be disabled.
+    
+*   **Options:** "Candidate accepted offer," "Candidate rejected offer," "Candidate still on notice period," "Offer negotiation is in progress," "Onboarding is in progress."
+    
+
+### **4.2 Request Latest Status (Employer)**
+
+*   **Trigger:** The employer clicks the "Request Latest Status" button on their screen.
+    
+*   **Logic:** This action notifies the recruiter that an update is needed. The new status, once provided, will be visible to the employer.
+    
+*   **Developer Note:** This feature is considered a lower priority if a chat or messaging feature is on the platform roadmap.
+    
+
+* * *
+
+5\. Application Status & Action Mapping
+---------------------------------------
+
+This table provides a clear reference for developers on the valid actions for each user type at every stage of the pipeline.
+
+Application Status
+
+Employer Actions
+
+Recruiter Actions
+
+**Under Review**
+
+Shortlist, Schedule Interview, Reject, On Hold
+
+View Candidate, Add Notes
+
+**Shortlisted**
+
+Schedule Interview, Reject, On Hold
+
+View Candidate, Add Notes
+
+**R1: Slots Added**
+
+_No actions._ Waiting for recruiter.
+
+Confirm one slot, Reject all slots, Add Notes
+
+**R1: Interview Confirmed**
+
+Schedule Next Round, Update Offer Details, Reject, On Hold
+
+View Status, Add Notes
+
+**Offer Released**
+
+Mark Candidate as Joined, Candidate Not Joined, Request Latest Status
+
+Update Post-Offer Status (one-time action)
+
+**Joined**
+
+_No new actions._
+
+_No new actions._
+
+**Not Joined / Rejected**
+
+_No new actions._
+
+_No new actions._
+=================
